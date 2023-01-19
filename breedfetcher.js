@@ -1,24 +1,26 @@
 const request = require('request');
 
-let breed = process.argv[2];
-const inputWebsite = `https://api.thecatapi.com/v1/breeds/search?q=${breed}`;
+fetchBreedDescription = function(breedName, callback) {
 
-request(inputWebsite, (error, response, body) => {
+  const requestURL = `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`
 
-  console.log('error:', error); // Print the error if one occurred
-  console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+  request(requestURL, (error, response, body) => {
 
-  if (body === '[]') {
-    console.log('Cat breed does not exist, please try again');
-  } else if (body === undefined) {
-    console.log('Something went wrong, please try again');
-  } else {
-    outputBody(body);
-  }
+    if (body === '[]') {
+      error = 'The breed you requested could not be found'
+      return callback(error)
+    }
 
-});
+    if (body === undefined) {
+      error = 'Something went wrong, please try again'
+      return callback(error)
+    }
 
-const outputBody = (body) => {
-  const data = JSON.parse(body);
-  console.log(data[0].description);
+    const description = JSON.parse(body)[0].description
+    return callback(description)
+
+  })
+
 };
+
+module.exports = fetchBreedDescription
